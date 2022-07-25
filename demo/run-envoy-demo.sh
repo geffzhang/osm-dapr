@@ -21,8 +21,9 @@ release=v1.1.0
 curl -sL https://github.com/openservicemesh/osm/releases/download/${release}/osm-${release}-linux-$ARCH.tar.gz | tar -vxzf -
 cp ./linux-$ARCH/osm /usr/local/bin/osm
 
-# install dapr cli without sudo 
-wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | DAPR_INSTALL_DIR="$HOME/dapr" /bin/bash
+# install dapr cli 
+wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+
 
 # install dapr 
 dapr init --kubernetes --enable-mtls=false 
@@ -51,7 +52,11 @@ osm install \
 ./scripts/mesh-port-exclusion.sh
 # change cpu limit of sidecar resources
 ./scripts/mesh-sidecar-resources.sh
-# create app namespace and involve it in mesh
+# create app namespace
+./demo/create-app-namespace.sh
+# install redis 
+./demo/deploy-redis.sh
+# config app namespace and involve it in mesh
 ./demo/configure-app-namespace.sh
 # deploy app
 ./demo/deploy-app.sh

@@ -13,6 +13,9 @@ helm uninstall fsm --namespace "$INGRESS_PIPY_NAMESPACE" || true
 # uninstall ingress nginx
 nginx_ingress_namespace="ingress-nginx"
 helm uninstall ingress-nginx -n "$nginx_ingress_namespace" || true
+
+# uninstall redis
+helm uninstall redis -n "$DEMO_NAMESPACE" || true
 # delete demo namespace
 kubectl delete ns "$DEMO_NAMESPACE" || true
 # uninstall dapr
