@@ -12,7 +12,7 @@ nginx_ingress_namespace="ingress-nginx"
 nginx_ingress_service="ingress-nginx-controller"
 TEST_NAMESPACE="${DEMO_NAMESPACE:-app-edge}"
 GATEWAY_SERVICE="samples-api-gateway"
-NODEAPP_SERVICE="samples-nodeapp"
+NODEAPP_SERVICE="nodeapp"
 
 
 
@@ -46,7 +46,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /nodeapp
+      - path: /
         pathType: Prefix
         backend:
           service:
@@ -68,7 +68,6 @@ spec:
     port:
       number: 80
       protocol: http   
-  sources:
   sources:
   - kind: Service
     namespace: "$nginx_ingress_namespace"

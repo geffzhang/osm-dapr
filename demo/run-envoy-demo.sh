@@ -45,6 +45,8 @@ osm install \
     --set=osm.controllerLogLevel="trace" \
     --timeout="$TIMEOUT"    
 
+# install redis 
+./demo/deploy-redis.sh
 
 # enable permissive traffic mode
 ./scripts/mesh-enable-permissive-traffic-mode.sh
@@ -54,8 +56,8 @@ osm install \
 ./scripts/mesh-sidecar-resources.sh
 # create app namespace
 ./demo/create-app-namespace.sh
-# install redis 
-./demo/deploy-redis.sh
+# create role get secret Non-default namespaces 
+./demo/configure-app-rolebinding.sh
 # config app namespace and involve it in mesh
 ./demo/configure-app-namespace.sh
 # deploy app

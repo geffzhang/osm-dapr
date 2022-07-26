@@ -24,7 +24,7 @@ spec:
   - name: redisPassword
     secretKeyRef:
       name: redis
-      key: redis-password
+      key: redisPassword
 auth:
   secretStore: kubernetes
 EOF
