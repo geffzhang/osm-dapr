@@ -26,6 +26,7 @@ spec:
         dapr.io/enabled: "true"
         dapr.io/app-id: "pythonapp"
         dapr.io/enable-api-logging: "true"
+        dapr.io/config: "appconfig"
         openservicemesh.io/outbound-port-exclusion-list: "80"
     spec:
       containers:

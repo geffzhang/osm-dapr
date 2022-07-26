@@ -44,6 +44,7 @@ spec:
         dapr.io/app-id: "nodeapp"
         dapr.io/app-port: "3000"
         dapr.io/enable-api-logging: "true"
+        dapr.io/config: "appconfig"
         openservicemesh.io/outbound-port-exclusion-list: "80"
     spec:
       containers:

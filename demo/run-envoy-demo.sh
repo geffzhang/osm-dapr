@@ -60,6 +60,8 @@ osm install \
 ./demo/configure-app-rolebinding.sh
 # config app namespace and involve it in mesh
 ./demo/configure-app-namespace.sh
+# create dapr config
+./demo/create-daprconfig.sh
 # deploy app
 ./demo/deploy-app.sh
 # deploy ingress
