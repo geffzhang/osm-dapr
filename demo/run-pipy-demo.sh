@@ -3,37 +3,38 @@
 set -aueo pipefail
 source .env
 
-K8S_NAMESPACE="${K8S_NAMESPACE:-osm-system}"
-MESH_NAME="${MESH_NAME:-osm}"
-IMAGE_PULL_POLICY="${IMAGE_PULL_POLICY:-IfNotPresent}"
+CTR_REGISTRY="${CTR_REGISTRY:-flomesh}"
+CTR_TAG="${CTR_TAG:-latest}"
+
+K8S_NAMESPACE="${K8S_NAMESPACE:-osm-edge-system}"
+MESH_NAME="${MESH_NAME:-osm-edge}"
+IMAGE_PULL_POLICY="${IMAGE_PULL_POLICY:-Always}"
 SIDECAR_LOG_LEVEL="${SIDECAR_LOG_LEVEL:-error}"
 TIMEOUT="${TIMEOUT:-300s}"
 ARCH=$(dpkg --print-architecture)
-
 # clean up
 ./demo/clean-kubernetes.sh
 
 # delete previous download
 rm -rf ./Linux-$ARCH ./linux-$ARCH
-
-
-release=v1.1.0
-curl -sL https://github.com/openservicemesh/osm/releases/download/${release}/osm-${release}-linux-$ARCH.tar.gz | tar -vxzf -
+curl -sL https://github.com/flomesh-io/osm-edge/releases/download/v1.1.0/osm-edge-v1.1.0-linux-$ARCH.tar.gz | tar -vxzf -
 cp ./linux-$ARCH/osm /usr/local/bin/osm
 
 # install dapr cli 
 wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
 
-
 # install dapr 
 dapr init --kubernetes --enable-mtls=false 
 
-# install osm cli
 osm install \
     --mesh-name "$MESH_NAME" \
     --osm-namespace "$K8S_NAMESPACE" \
     --verbose \
+    --set=fsm.enabled=true \
     --set=osm.enablePermissiveTrafficPolicy=true \
+    --set=osm.image.registry="$CTR_REGISTRY" \
+    --set=osm.image.tag="$CTR_TAG" \
+    --set=osm.image.pullPolicy="$IMAGE_PULL_POLICY" \
     --set=osm.enableDebugServer="false" \
     --set=osm.enableEgress="false" \
     --set=osm.enableReconciler="false" \
@@ -42,14 +43,9 @@ osm install \
     --set=osm.tracing.enable="false" \
     --set=osm.enableFluentbit="false" \
     --set=osm.deployPrometheus="false" \
+    --set=osm.sidecarLogLevel="$SIDECAR_LOG_LEVEL" \
     --set=osm.controllerLogLevel="trace" \
-    --set=contour.enabled="true" \
-    --set=contour.configInline.tls.envoy-client-certificate.name="osm-contour-envoy-client-cert" \
-    --set=contour.configInline.tls.envoy-client-certificate.namespace="$K8S_NAMESPACE" \
-    --timeout="$TIMEOUT"    
-
-# install redis 
-./demo/deploy-redis.sh
+    --set=osm.sidecarImage="flomesh/pipy-nightly:latest" \
 
 # enable permissive traffic mode
 ./scripts/mesh-enable-permissive-traffic-mode.sh
@@ -57,15 +53,10 @@ osm install \
 ./scripts/mesh-port-exclusion.sh
 # change cpu limit of sidecar resources
 ./scripts/mesh-sidecar-resources.sh
-# create app namespace
-./demo/create-app-namespace.sh
-# create role get secret Non-default namespaces 
-./demo/configure-app-rolebinding.sh
-# config app namespace and involve it in mesh
+# create app namespace and involve it in mesh
 ./demo/configure-app-namespace.sh
-# create dapr config
-./demo/create-daprconfig.sh
 # deploy app
 ./demo/deploy-app.sh
 # deploy ingress
- ./demo/deploy-ingress-contour.sh
+./demo/deploy-ingress-nginx.sh
+# ./demo/deploy-ingress-pipy.sh
